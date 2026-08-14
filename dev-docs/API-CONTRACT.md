@@ -70,6 +70,8 @@ Media:
 
 ```text
 POST /v1/media/uploads
+POST /v1/media/:contentId/qc
+GET  /v1/media/:contentId/qc
 POST /api/media/:contentId/confirm
 GET  /api/media/file/:key
 PUT  /api/media/file/:key

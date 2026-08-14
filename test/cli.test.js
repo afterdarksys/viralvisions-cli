@@ -98,4 +98,32 @@ describe('cli', () => {
       globalThis.fetch = originalFetch
     }
   })
+
+  it('routes media qc to the server-side v1 qc endpoint', async () => {
+    const originalFetch = globalThis.fetch
+    const calls = []
+    globalThis.fetch = async (url, init) => {
+      calls.push({ url, init })
+      return new Response(JSON.stringify({ ok: true, apiVersion: 'v1', requestId: 'req_qc', data: { report: { ok: true } }, warnings: [], next: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'x-request-id': 'req_qc' },
+      })
+    }
+    try {
+      const stdout = capture()
+      const stderr = capture()
+      const code = await run(['media', 'qc', 'content_1', '--expected-aspect', '9:16', '--output', 'json'], {
+        env: { VIRALVISIONS_TOKEN: 'token', VIRALVISIONS_BASE_URL: 'https://viralvisions.test' },
+        stdout: stdout.stream,
+        stderr: stderr.stream,
+        stdin: { isTTY: false },
+      })
+      assert.equal(code, 0)
+      assert.equal(calls[0].url, 'https://viralvisions.test/v1/media/content_1/qc')
+      assert.equal(JSON.parse(calls[0].init.body).expectedAspect, '9:16')
+      assert.ok(calls[0].init.headers['Idempotency-Key'])
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })

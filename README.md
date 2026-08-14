@@ -84,6 +84,9 @@ vv experiments create --json '{"hypothesis":"Hook A wins","variants":[{"key":"a"
 vv experiments winner <experiment-id> --json '{"results":{"a":{"reach":1000},"b":{"reach":800}}}'
 vv media inspect ./video.mp4
 vv media upload ./video.mp4
+vv media upload ./video.mp4 --qc --expected-aspect 9:16
+vv media qc <content-id>
+vv media qc <content-id> --deep --expected-aspect 9:16
 vv content list
 vv content create --caption "Launch hook" --platforms youtube,tiktok --hashtags launch,ai --content-id <content-id>
 vv content show <post-id>
@@ -111,6 +114,7 @@ JSON output is always written to stdout without progress text.
 - Destructive commands require `--yes`.
 - Mutation requests include an `Idempotency-Key`.
 - New account/media/post/release/job workflows use the versioned `/v1` API contract.
+- QC commands call ViralVisions server-side QC endpoints; the proprietary inspection engine does not ship inside the CLI package.
 - Business logic stays on the ViralVisions API.
 
 ## Validation

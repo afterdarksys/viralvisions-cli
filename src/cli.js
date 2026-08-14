@@ -25,7 +25,8 @@ Commands:
   context list|show|use <name>|set <name> --base-url <url>
   accounts readiness
   accounts list|show <id>|capabilities <id>|test <id>
-  media upload <path>
+  media upload <path> [--qc]
+  media qc <content-id> [--deep] [--expected-aspect 9:16]
   trends opportunities
   trends intelligence
   trends use <trend-id>
@@ -65,7 +66,7 @@ function parseArgs(args) {
       globals.positionals.push(name)
       continue
     }
-    if (['quiet', 'no-color', 'yes', 'dry-run'].includes(name)) {
+    if (['quiet', 'no-color', 'yes', 'dry-run', 'qc', 'deep', 'latest', 'require-watermark'].includes(name)) {
       if (name === 'no-color') globals.noColor = true
       else globals[name.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = true
       continue
@@ -343,7 +344,7 @@ async function authenticatedCommand(area, command, subcommand, options, api) {
       mimeType,
       timeoutMs: options.timeoutMs,
     })
-    return {
+    const result = {
       ...reservation,
       data: {
         ...reservation.data,
@@ -351,6 +352,33 @@ async function authenticatedCommand(area, command, subcommand, options, api) {
         localPath: absolute,
       },
     }
+    if (options.qc) {
+      const qc = await runMediaQc(options, api, upload.contentId, {
+        deep: Boolean(options.deep),
+        expectedAspect: flag(options, 'expectedAspect'),
+        requireWatermark: Boolean(options.requireWatermark),
+      })
+      return {
+        ...result,
+        data: {
+          ...result.data,
+          qc: qc.data?.report ?? qc.data,
+        },
+        warnings: [...(result.warnings ?? []), ...(qc.warnings ?? [])],
+        next: qc.next ?? result.next ?? [],
+      }
+    }
+    return result
+  }
+
+  if (area === 'media' && command === 'qc') {
+    const contentId = subcommand
+    if (!contentId) throw new Error('media qc requires a content id')
+    return runMediaQc(options, api, contentId, {
+      deep: Boolean(options.deep),
+      expectedAspect: flag(options, 'expectedAspect'),
+      requireWatermark: Boolean(options.requireWatermark),
+    })
   }
 
   if (area === 'media' && command === 'inspect') {
@@ -434,4 +462,11 @@ async function waitForJob(options, api, jobId) {
     await new Promise((resolveTimer) => setTimeout(resolveTimer, Math.min(2000, Math.max(250, timeoutMs / 10))))
   }
   throw new Error(`Timed out waiting for ${jobId}${last ? `; last status: ${last.data?.job?.record?.status || 'unknown'}` : ''}`)
+}
+
+async function runMediaQc(options, api, contentId, body) {
+  if (options.latest) {
+    return request(options, api, 'GET', `/v1/media/${encodeURIComponent(contentId)}/qc`)
+  }
+  return request(options, api, 'POST', `/v1/media/${encodeURIComponent(contentId)}/qc`, body, true)
 }

@@ -83,6 +83,8 @@ DELETE /api/creator-dna
 
 ```text
 vv media upload <path>
+vv media upload <path> --qc
+vv media qc <content-id>
 vv media inspect <path>
 vv analyze video --content-id <id>
 vv analyze video --media-asset-id <id>
@@ -91,6 +93,7 @@ vv analyze video <path>
 ```
 
 Initial implementation can support server-side IDs first. Local path analysis can come after upload plumbing.
+QC is server-side by design. Do not vendor the proprietary inspection engine into the public CLI package.
 
 Use:
 
