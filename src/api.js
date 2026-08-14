@@ -78,3 +78,35 @@ export async function apiRequest({
     body: parsed,
   }
 }
+
+export async function uploadBytes({
+  uploadUrl,
+  bytes,
+  mimeType,
+  timeoutMs = 30000,
+  fetchImpl = globalThis.fetch,
+}) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetchImpl(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': mimeType,
+        'Content-Length': String(bytes.byteLength),
+      },
+      body: bytes,
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      throw new ApiError(`Upload failed: HTTP ${response.status}`, {
+        status: response.status,
+        body: null,
+        requestId: null,
+      })
+    }
+    return { status: response.status }
+  } finally {
+    clearTimeout(timer)
+  }
+}

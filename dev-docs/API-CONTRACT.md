@@ -5,17 +5,21 @@
 Use versioned API endpoints where available:
 
 ```text
-<baseUrl>/api/...
+<baseUrl>/v1/...
 ```
 
-If a dedicated `/v1/cli/...` facade is added later, switch the API client behind the same command interface. Do not change CLI command names just because endpoint paths change.
+The ViralVisions app rewrites `/v1/*` to the implemented `/api/v1/*` route handlers. Keep CLI command names stable even if implementation paths move.
 
 ## Initial endpoint map
 
 Accounts:
 
 ```text
-GET /api/accounts/readiness
+GET /v1/accounts
+GET /v1/accounts/:id
+GET /v1/accounts/:id/capabilities
+GET /v1/accounts/:id/test
+GET /api/accounts/readiness legacy/readiness fallback
 ```
 
 Creator DNA:
@@ -65,7 +69,7 @@ GET  /api/learning/winners/:checkpointId/actions
 Media:
 
 ```text
-POST /api/media/upload
+POST /v1/media/uploads
 POST /api/media/:contentId/confirm
 GET  /api/media/file/:key
 PUT  /api/media/file/:key
@@ -74,11 +78,12 @@ PUT  /api/media/file/:key
 Posts/distribution:
 
 ```text
-GET  /api/posts
-POST /api/posts
-GET  /api/posts/:id
-PATCH /api/posts/:id
-POST /api/distribution/orchestrate
+GET   /v1/posts
+POST  /v1/posts
+GET   /v1/posts/:id
+PATCH /v1/posts/:id
+POST  /v1/posts/:id/release
+GET   /v1/jobs/:id
 ```
 
 Product metrics:

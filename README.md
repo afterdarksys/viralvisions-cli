@@ -50,6 +50,10 @@ vv context show
 vv context set local --base-url http://localhost:3000
 vv context use local
 vv accounts readiness
+vv accounts list
+vv accounts show <id>
+vv accounts capabilities <id>
+vv accounts test <id>
 vv capabilities
 vv doctor
 vv trends opportunities
@@ -59,6 +63,7 @@ vv creator-dna export
 vv metrics product
 vv predictions calibration
 vv jobs show <id>
+vv wait <job-or-distribution-id>
 ```
 
 Safe mutation/workflow commands:
@@ -78,6 +83,14 @@ vv experiments list
 vv experiments create --json '{"hypothesis":"Hook A wins","variants":[{"key":"a","hook":"Stop scrolling"},{"key":"b","hook":"Try this"}]}'
 vv experiments winner <experiment-id> --json '{"results":{"a":{"reach":1000},"b":{"reach":800}}}'
 vv media inspect ./video.mp4
+vv media upload ./video.mp4
+vv content list
+vv content create --caption "Launch hook" --platforms youtube,tiktok --hashtags launch,ai --content-id <content-id>
+vv content show <post-id>
+vv content update <post-id> --json '{"caption":"Updated caption"}'
+vv publish <post-id> --account <account-id> --platform youtube --dry-run
+vv publish <post-id> --account <account-id> --platform youtube --yes
+vv schedule <post-id> --account <account-id> --platform youtube --at 2026-08-15T12:00:00.000Z --dry-run
 ```
 
 ## Output
@@ -97,6 +110,7 @@ JSON output is always written to stdout without progress text.
 - Tokens and signed URLs are redacted from output.
 - Destructive commands require `--yes`.
 - Mutation requests include an `Idempotency-Key`.
+- New account/media/post/release/job workflows use the versioned `/v1` API contract.
 - Business logic stays on the ViralVisions API.
 
 ## Validation

@@ -32,6 +32,7 @@ vv accounts reconnect <id>
 ```
 
 Use `GET /api/accounts/readiness`.
+Prefer `/v1/accounts`, `/v1/accounts/:id`, `/v1/accounts/:id/capabilities`, and `/v1/accounts/:id/test` for new CLI commands.
 
 ## Trends
 
@@ -109,7 +110,7 @@ vv posts create
 vv posts show <id>
 ```
 
-Use `/api/posts` initially.
+Use `/v1/posts` and `/v1/posts/:id` for list/create/show/update.
 
 ## Publishing/distribution
 
@@ -123,7 +124,7 @@ vv distribution cancel <distribution-id> --yes
 Use:
 
 ```text
-POST /api/distribution/orchestrate
+POST /v1/posts/:id/release
 ```
 
 Do not publish without confirmation.
